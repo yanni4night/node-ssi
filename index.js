@@ -18,7 +18,7 @@ var fs = require('fs');
 var path = require('path');
 
 
-var syntaxReg = /<!--#([^\r\n]+)-->/mg;
+var syntaxReg = /<!--#([^\r\n]+?)-->/mg;
 var includeFileReg = /<!--#\s*include\s+file=(['"])([^\r\n]+?)\1\s*-->/;
 var setVarReg = /<!--#\s*set\s+var=(['"])([^\r\n]+?)\1\s+value=(['"])([^\r\n]+?)\3\s*-->/;
 var echoReg = /<!--#\s*echo\s+var=(['"])([^\r\n]+?)\1(\s+default=(['"])([^\r\n]+?)\4)?\s*-->/;

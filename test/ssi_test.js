@@ -47,7 +47,8 @@ exports.ssi = {
 
         ssi.compile(grunt.file.read(path.join(__dirname, './mock/index.html')), {
             payload: {
-                title: 'Kitty'
+                title: 'Kitty',
+                mqtt:10
             }
         }, function(err, output) {
             grunt.log.debug(output);
@@ -56,6 +57,7 @@ exports.ssi = {
             test.ok(!!~output.indexOf('Kitty'));//from payload
             test.ok(!!~output.indexOf('<nav>'));//from header.html
             test.ok(!!~output.indexOf('Download'));//from menu.html
+            test.ok(!!~output.indexOf('MQTT'));//from payload not equal
 
             //check left syntax
             for (var reg in SSI.prototype.regExps) {
