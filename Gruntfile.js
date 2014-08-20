@@ -15,7 +15,7 @@ module.exports = function(grunt) {
         jshint: {
             options: {
                 node: true,
-                strict: true
+                evil:true
             },
             index: ['index.js']
         },
@@ -24,7 +24,7 @@ module.exports = function(grunt) {
         },
         watch: {
             index: {
-                files: 'index.js',
+                files: ['index.js','test/**/*.{js,html}'],
                 tasks: ['test']
             }
         }

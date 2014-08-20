@@ -10,11 +10,6 @@
  * @since 0.1.0
  */
 
-'use strict';
-
-var grunt = require('grunt');
-var ssi = require('../index');
-
 /*
   ======== A Handy Little Nodeunit Reference ========
   https://github.com/caolan/nodeunit
@@ -34,13 +29,40 @@ var ssi = require('../index');
     test.doesNotThrow(block, [error], [message])
     test.ifError(value)
 */
+'use strict';
+
+var grunt = require('grunt');
+var SSI = require('../index');
+var path = require('path');
 
 exports.ssi = {
     setUp: function(done) {
         done();
     },
     ssi: function(test) {
-        test.ok(!!ssi.compile('hello'));
-        test.done();
+
+        var ssi = new SSI({
+            baseDir: path.join(__dirname, './mock')
+        });
+
+        ssi.compile(grunt.file.read(path.join(__dirname, './mock/index.html')), {
+            payload: {
+                title: 'Kitty'
+            }
+        }, function(err, output) {
+            grunt.log.debug(output);
+
+            test.ok(!err);
+            test.ok(!!~output.indexOf('Kitty'));//from payload
+            test.ok(!!~output.indexOf('<nav>'));//from header.html
+            test.ok(!!~output.indexOf('Download'));//from menu.html
+
+            //check left syntax
+            for (var reg in SSI.prototype.regExps) {
+                test.ok(!SSI.prototype.regExps[reg].test(output));
+            }
+            test.done();
+        });
+
     }
 };

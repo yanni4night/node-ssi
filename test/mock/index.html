@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Demo</title>
+        <style type="text/css"></style>
+
+    </head>
+    <body>
+        <!--#include file="./header.html"-->
+
+        <!--# set var="version" value="0.1.0"-->
+        <!--# echo var="version" default="nover"-->
+        
+        <h1><!--# echo var="title"--></h1>
+
+        <!--# if expr="$version = 0.1.0"-->
+        <p>first version</p>
+        <!--# elif expr="$version = 0.1.1"-->
+        <p>fixed version</p>
+        <!--# else -->
+        <p>upgraded version</p>
+        <!--# endif -->
+    </body>
+    <script type="text/javascript"></script>
+</html>
