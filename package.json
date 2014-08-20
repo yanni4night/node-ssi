@@ -1,0 +1,31 @@
+{
+  "name": "node-ssi",
+  "version": "0.1.0",
+  "description": "A server-side-include system",
+  "main": "index.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yanni4night/node-ssi.git"
+  },
+  "keywords": [
+    "ssi"
+  ],
+  "author": "yanni4night@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yanni4night/node-ssi/issues"
+  },
+  "homepage": "https://github.com/yanni4night/node-ssi",
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-contrib-nodeunit": "~0.4.1",
+    "grunt-contrib-watch": "^0.6.1"
+  },
+  "dependencies": {
+    "extend": "^1.3.0"
+  }
+}
