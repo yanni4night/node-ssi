@@ -4,9 +4,10 @@
  *
  * changelog
  * 2014-08-20[11:00:06]:authorized
+ * 2014-08-25[14:43:48]:fixed empty output when no tag is resolved
  *
  * @author yanni4night@gmail.com
- * @version 0.1.0
+ * @version 0.1.1
  * @since 0.1.0
  */
 
@@ -33,6 +34,8 @@ var endifReg = /<!--#\s*endif\s*-->/;
  *
  * @param  {String} tpl Source
  * @return {Function}
+ * @since 0.1.0
+ * @version 0.1.1
  */
 function resolve(tpl) {
     //resolve set/echo/if
@@ -42,10 +45,15 @@ function resolve(tpl) {
     var start = 0,
         lastMatches;
 
+    var resolveLine = function(str) {
+        return str.replace(/"/mg, '\\"').replace(/\n/mg, '\\\n');
+    };
+
     while (!!(matches = syntaxReg.exec(tpl))) {
-        fnStr += '_r += "' + (tpl.slice(start, matches.index)).replace(/"/mg, '\\"').replace(/\n/mg, '\\\n') + '";\n';
+        fnStr += '_r += "' + resolveLine(tpl.slice(start, matches.index)) + '";\n';
         start = matches[0].length + matches.index;
         lastMatches = matches;
+
         switch (true) {
             case setVarReg.test(matches[0]):
                 key = RegExp.$2;
@@ -87,9 +95,13 @@ function resolve(tpl) {
                 break;
         }
     }
+    
     if (lastMatches) {
-        fnStr += '_r+="' + (tpl.slice(lastMatches.index + lastMatches[0].length)).replace(/"/mg, '\\"').replace(/\n/mg, '\\\n') + '";';
+        fnStr += '_r+="' + resolveLine(tpl.slice(lastMatches.index + lastMatches[0].length)) + '";';
+    }else {
+        fnStr += '_r+="' + resolveLine(tpl) + '";';
     }
+
     fnStr += '};\nreturn _r;';
 
     return new Function('__data', fnStr);
@@ -146,9 +158,10 @@ SSI.prototype = {
      * @param  {Function} callback
      */
     compile: function(content, options, callback) {
+        var matches, seg, tpath, innerContent,func;
+        
         options = extend({}, this.options, options || {});
 
-        var matches, seg, tpath, innerContent;
         //resolve inlcude
         while (!!(matches = includeFileReg.exec(content))) {
             seg = matches[0];
@@ -164,9 +177,9 @@ SSI.prototype = {
             content = content.slice(0, matches.index) + innerContent + content.slice(matches.index + seg.length);
         }
 
-        var func = resolve(content);
+        func = resolve(content);
 
-        callback(null, func(options.payload || {}));
+        return callback(null, func(options.payload || {}));
     },
     /**
      *
