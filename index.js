@@ -5,9 +5,10 @@
  * changelog
  * 2014-08-20[11:00:06]:authorized
  * 2014-08-25[14:43:48]:fixed empty output when no tag is resolved
+ * 2014-09-23[14:07:07]:fixed line break lost
  *
  * @author yanni4night@gmail.com
- * @version 0.1.1
+ * @version 0.1.2
  * @since 0.1.0
  */
 
@@ -46,7 +47,8 @@ function resolve(tpl) {
         lastMatches;
 
     var resolveLine = function(str) {
-        return str.replace(/"/mg, '\\"').replace(/\n/mg, '\\\n');
+        //We have to handle a line by add a '\' and a line break.
+        return str.replace(/"/mg, '\\"').replace(/\n/mg, '\\n\\\n');
     };
 
     while (!!(matches = syntaxReg.exec(tpl))) {
@@ -95,10 +97,10 @@ function resolve(tpl) {
                 break;
         }
     }
-    
+
     if (lastMatches) {
         fnStr += '_r+="' + resolveLine(tpl.slice(lastMatches.index + lastMatches[0].length)) + '";';
-    }else {
+    } else {
         fnStr += '_r+="' + resolveLine(tpl) + '";';
     }
 
@@ -158,8 +160,8 @@ SSI.prototype = {
      * @param  {Function} callback
      */
     compile: function(content, options, callback) {
-        var matches, seg, tpath, innerContent,func;
-        
+        var matches, seg, tpath, innerContent, func;
+
         options = extend({}, this.options, options || {});
 
         //resolve inlcude

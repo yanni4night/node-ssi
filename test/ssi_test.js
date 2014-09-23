@@ -51,7 +51,7 @@ exports.ssi = {
                 mqtt:10
             }
         }, function(err, output) {
-            grunt.log.debug(output);
+           // console.log(output);
 
             test.ok(!err);
             test.ok(!!~output.indexOf('Kitty'));//from payload
