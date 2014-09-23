@@ -174,7 +174,7 @@ SSI.prototype = {
                     encoding: this.options.encoding
                 });
             } catch (e) {
-                innerContent = '';
+                return callback(e);
             }
             content = content.slice(0, matches.index) + innerContent + content.slice(matches.index + seg.length);
         }
