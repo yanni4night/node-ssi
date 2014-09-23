@@ -6,9 +6,10 @@
  * 2014-08-20[11:00:06]:authorized
  * 2014-08-25[14:43:48]:fixed empty output when no tag is resolved
  * 2014-09-23[14:07:07]:fixed line break lost
+ * 2014-09-23[14:55:07]:support options absence
  *
  * @author yanni4night@gmail.com
- * @version 0.1.2
+ * @version 0.1.3
  * @since 0.1.0
  */
 
@@ -162,6 +163,11 @@ SSI.prototype = {
     compile: function(content, options, callback) {
         var matches, seg, tpath, innerContent, func;
 
+        if (arguments.length < 3) {
+            callback = options;
+            options = {};
+        }
+
         options = extend({}, this.options, options || {});
 
         //resolve inlcude
@@ -190,6 +196,12 @@ SSI.prototype = {
      * @param  {Function} callback
      */
     compileFile: function(filepath, options, callback) {
+
+        if (arguments.length < 3) {
+            callback = options;
+            options = {};
+        }
+
         options = extend({}, this.options, options || {});
 
         return fs.readFile(filepath, {

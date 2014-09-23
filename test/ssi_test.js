@@ -48,16 +48,16 @@ exports.ssi = {
         ssi.compile(grunt.file.read(path.join(__dirname, './mock/index.html')), {
             payload: {
                 title: 'Kitty',
-                mqtt:10
+                mqtt: 10
             }
         }, function(err, output) {
-           // console.log(output);
+            // console.log(output);
 
             test.ok(!err);
-            test.ok(!!~output.indexOf('Kitty'));//from payload
-            test.ok(!!~output.indexOf('<nav>'));//from header.html
-            test.ok(!!~output.indexOf('Download'));//from menu.html
-            test.ok(!!~output.indexOf('MQTT'));//from payload not equal
+            test.ok(!!~output.indexOf('Kitty')); //from payload
+            test.ok(!!~output.indexOf('<nav>')); //from header.html
+            test.ok(!!~output.indexOf('Download')); //from menu.html
+            test.ok(!!~output.indexOf('MQTT')); //from payload not equal
 
             //check left syntax
             for (var reg in SSI.prototype.regExps) {
@@ -67,13 +67,12 @@ exports.ssi = {
         });
 
     },
-    empty:function(test){
-         var ssi = new SSI({
+    empty: function(test) {
+        var ssi = new SSI({
             baseDir: path.join(__dirname, './mock')
         });
 
-        ssi.compile(grunt.file.read(path.join(__dirname, './mock/empty.html')), {
-        }, function(err, output) {
+        ssi.compile(grunt.file.read(path.join(__dirname, './mock/empty.html')), function(err, output) {
             grunt.log.debug(output);
 
             test.ok(!!output);

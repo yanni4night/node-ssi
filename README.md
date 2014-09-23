@@ -30,12 +30,12 @@ usage
         });
 
     // handle a file
-    ssi.compileFile('index.html', {title: 'Index'}, function(err, content){
+    ssi.compileFile('index.html', {payload:{title: 'Index'}}, function(err, content){
 
         });
 
     //handle a content
-    ssi.compile('<!--# echo var="v" default="default" -->', {}, function(err,content){
+    ssi.compile('<!--# echo var="v" default="default" -->', function(err,content){
 
         });
 
