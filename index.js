@@ -37,7 +37,7 @@ var endifReg = /<!--#\s*endif\s*-->/;
  * @param  {String} tpl Source
  * @return {Function}
  * @since 0.1.0
- * @version 0.1.1
+ * @version 0.1.2
  */
 function resolve(tpl) {
     //resolve set/echo/if
@@ -48,8 +48,13 @@ function resolve(tpl) {
         lastMatches;
 
     var resolveLine = function(str) {
-        //We have to handle a line by add a '\' and a line break.
-        return str.replace(/"/mg, '\\"').replace(/\n/mg, '\\n\\\n');
+        //This is stupid but works for "\r\b\f\u\v\n".
+        //Here we assume line break is "\n"
+        return str.split('').map(function(n, idx) {
+            if ('"' === n) return '\\"';
+            else if ('\\' === n) return '\\\\';
+            else return n;
+        }).join('"+"').replace(/\n/mg, '\\n\\\n');
     };
 
     while (!!(matches = syntaxReg.exec(tpl))) {

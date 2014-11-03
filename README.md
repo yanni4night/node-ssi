@@ -44,6 +44,10 @@ test
 
 `grunt test`
 
+changelog
+======
+ - 2014-11-03[17:00:51]:support special chars like `\n`,`\v` etc.
+
 license
 ======
 
