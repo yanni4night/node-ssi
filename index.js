@@ -7,9 +7,10 @@
  * 2014-08-25[14:43:48]:fixed empty output when no tag is resolved
  * 2014-09-23[14:07:07]:fixed line break lost
  * 2014-09-23[14:55:07]:support options absence
+ * 2014-11-05[11:49:30]:optimize line-handling
  *
  * @author yanni4night@gmail.com
- * @version 0.1.3
+ * @version 0.1.4
  * @since 0.1.0
  */
 
@@ -50,11 +51,7 @@ function resolve(tpl) {
     var resolveLine = function(str) {
         //This is stupid but works for "\r\b\f\u\v\n".
         //Here we assume line break is "\n"
-        return str.split('').map(function(n, idx) {
-            if ('"' === n) return '\\"';
-            else if ('\\' === n) return '\\\\';
-            else return n;
-        }).join('"+"').replace(/\n/mg, '\\n\\\n');
+        return str.replace(/\\/mg, '\\\\').replace(/"/mg, '\\"').replace(/\n/mg, '\\n\\\n');
     };
 
     while (!!(matches = syntaxReg.exec(tpl))) {
