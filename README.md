@@ -1,5 +1,8 @@
 node-ssi
 ======
+
+[![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Support us][gittip-image]][gittip-url] [![Build Status][travis-image]][travis-url] [![Coveralls Status][coveralls-image]][coveralls-url] [![Build status][appveyor-image]][appveyor-url] [![Built with Grunt][grunt-image]][grunt-url]
+
 A server-side-include system for nodejs.
 
 We only support parts of nginx ssi syntax:
@@ -54,5 +57,22 @@ license
 MIT
 
 
+[gittip-url]: https://www.gittip.com/yanni4night/
+[gittip-image]: http://img.shields.io/gittip/yanni4night.svg
 
+[downloads-image]: http://img.shields.io/npm/dm/node-ssi.svg
+[npm-url]: https://npmjs.org/package/node-ssi
+[npm-image]: http://img.shields.io/npm/v/node-ssi.svg
+
+[travis-url]: https://travis-ci.org/yanni4night/node-ssi
+[travis-image]: http://img.shields.io/travis/yanni4night/node-ssi.svg
+
+[coveralls-url]: https://coveralls.io/r/yanni4night/node-ssi
+[coveralls-image]: http://img.shields.io/coveralls/yanni4night/node-ssi/master.svg
+
+[grunt-url]:http://gruntjs.com/
+[grunt-image]: http://img.shields.io/badge/BUILT%20WITH-GRUNT-yellow.svg
+
+[appveyor-image]:https://ci.appveyor.com/api/projects/status/ildoo8h6ewphy8we?svg=true
+[appveyor-url]:https://ci.appveyor.com/project/yanni4night/node-ssi
 
