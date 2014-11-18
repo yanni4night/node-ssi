@@ -1,7 +1,7 @@
 {
   "name": "node-ssi",
   "version": "0.2.1",
-  "description": "A server-side-include system",
+  "description": "A SSI parser",
   "main": "index.js",
   "scripts": {
     "test": "grunt test"
