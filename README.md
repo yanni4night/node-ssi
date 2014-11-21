@@ -77,6 +77,6 @@ MIT
 [grunt-url]:http://gruntjs.com/
 [grunt-image]: http://img.shields.io/badge/BUILT%20WITH-GRUNT-yellow.svg
 
-[appveyor-image]:https://ci.appveyor.com/api/projects/status/ildoo8h6ewphy8we?svg=true
+[appveyor-image]:https://ci.appveyor.com/api/projects/status/6sv21grqrixe60yu?svg=true
 [appveyor-url]:https://ci.appveyor.com/project/yanni4night/node-ssi
 
