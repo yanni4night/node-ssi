@@ -8,9 +8,10 @@
  * 2014-09-23[14:07:07]:fixed line break lost
  * 2014-09-23[14:55:07]:support options absence
  * 2014-11-05[11:49:30]:optimize line-handling
+ * 2014-11-22[20:38:07]:remove \r
  *
  * @author yanni4night@gmail.com
- * @version 0.1.4
+ * @version 0.1.5
  * @since 0.1.0
  */
 
@@ -51,7 +52,7 @@ function resolve(tpl) {
     var resolveLine = function(str) {
         //This is stupid but works for "\r\b\f\u\v\n".
         //Here we assume line break is "\n"
-        return str.replace(/\\/mg, '\\\\').replace(/"/mg, '\\"').replace(/\n/mg, '\\n\\\n');
+        return str.replace(/\r/mg, '').replace(/\\/mg, '\\\\').replace(/"/mg, '\\"').replace(/\n/mg, '\\n\\\n');
     };
 
     while (!!(matches = syntaxReg.exec(tpl))) {
