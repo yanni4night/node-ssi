@@ -193,13 +193,15 @@ SSI.prototype = {
      * @param callback
      */
     resolveIncludes: function(content, options, callback) {
-        var matches, seg, tpath, subOptions, ssi = this;
+        var matches, seg, isVirtual, basePath, tpath, subOptions, ssi = this;
 
         async.whilst( // https://www.npmjs.org/package/async#whilst-test-fn-callback-
             function test() {return !!(matches = includeFileReg.exec(content)); },
             function insertInclude(next) {
                 seg = matches[0];
-                tpath = path.join(options.baseDir, RegExp.$3);
+                isVirtual = RegExp.$1 == 'virtual';
+                basePath = (isVirtual && options.dirname)? options.dirname : options.baseDir;
+                tpath = path.join(basePath, RegExp.$3);
                 fs.readFile(tpath, {
                         encoding: options.encoding
                     }, function(err, innerContentRaw) {
@@ -207,7 +209,7 @@ SSI.prototype = {
                             return next(err);
                         }
                         // ensure that included files can include other files with relative paths
-                        subOptions = extend({}, options, {baseDir: path.dirname(tpath)});
+                        subOptions = extend({}, options, {dirname: path.dirname(tpath)});
                         ssi.resolveIncludes(innerContentRaw, subOptions, function(err, innerContent) {
                             if (err) {
                                 return next(err);
@@ -240,7 +242,7 @@ SSI.prototype = {
         }
 
         options = extend({}, this.options, options || {});
-        options.baseDir = path.dirname(filepath);
+        options.dirname = path.dirname(filepath);
 
         var ssi = this;
 

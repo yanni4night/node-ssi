@@ -20,8 +20,10 @@ We only support parts of nginx ssi syntax:
       <!--# else -->
       <!--# endif -->
 
-`virtual` includes behave exactly the same as `file` includes - both accept a relative path. They're there to make it easier
-to work with files that were written for Apache.
+Note:
+
+* `file` includes are always relative to the baseDir provided in the options.
+* `virtual` includes are relative to the current file.
 
 usage
 ======
