@@ -181,7 +181,11 @@ SSI.prototype = {
             }
 
             func = resolve(content);
-            return callback(null, func(options.payload || {}));
+            try {
+                return callback(null, func(options.payload || {}));
+            } catch (ex) {
+                return callback(ex);
+            }
         });
     },
 
