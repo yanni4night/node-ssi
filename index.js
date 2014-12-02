@@ -21,6 +21,7 @@
 var extend = require('extend');
 var fs = require('fs');
 var path = require('path');
+var async = require('async');
 
 
 var syntaxReg = /<!--#([^\r\n]+?)-->/mg;
@@ -173,24 +174,35 @@ SSI.prototype = {
 
         options = extend({}, this.options, options || {});
 
-        //resolve inlcude
-        while (!!(matches = includeFileReg.exec(content))) {
-            seg = matches[0];
+        //resolve inlcudes
+        async.whilst( // https://www.npmjs.org/package/async#whilst-test-fn-callback-
+            function test() { return !!(matches = includeFileReg.exec(content)); },
+            function insertInclude(next) {
+                seg = matches[0];
 
-            tpath = RegExp.$2;
-            try {
-                innerContent = fs.readFileSync(path.join(this.options.baseDir, tpath), {
-                    encoding: this.options.encoding
-                });
-            } catch (e) {
-                return callback(e);
+                tpath = RegExp.$2;
+                fs.readFile(path.join(options.baseDir, tpath), {
+                        encoding: options.encoding
+                    }, function(err, innerContent) {
+                        if (err) {
+                            return next(err);
+                        }
+                        content = content.slice(0, matches.index) + innerContent + content.slice(matches.index + seg.length);
+                        next();
+                    }
+                );
+            },
+            function includesComplete(err) {
+                if (err) {
+                    return callback(err);
+                }
+
+                func = resolve(content);
+                return callback(null, func(options.payload || {}));
             }
-            content = content.slice(0, matches.index) + innerContent + content.slice(matches.index + seg.length);
-        }
+        );
 
-        func = resolve(content);
 
-        return callback(null, func(options.payload || {}));
     },
     /**
      *
