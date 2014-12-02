@@ -165,7 +165,7 @@ SSI.prototype = {
      * @param  {Function} callback
      */
     compile: function(content, options, callback) {
-        var matches, seg, tpath, innerContent, func;
+        var matches, seg, tpath, func;
 
         if (arguments.length < 3) {
             callback = options;
@@ -219,12 +219,14 @@ SSI.prototype = {
 
         options = extend({}, this.options, options || {});
 
+        var ssi = this;
+
         return fs.readFile(filepath, {
             encoding: options.encoding
         }, function(err, content) {
             if (err) {
                 return callback(err);
-            } else return SSI.compile(content, options, callback);
+            } else return ssi.compile(content, options, callback);
         });
     }
 };
