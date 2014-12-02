@@ -25,7 +25,7 @@ var async = require('async');
 
 
 var syntaxReg = /<!--#([^\r\n]+?)-->/mg;
-var includeFileReg = /<!--#\s*include\s+file=(['"])([^\r\n]+?)\1\s*-->/;
+var includeFileReg = /<!--#\s*include\s+(file|virtual)=(['"])([^\r\n]+?)\2\s*-->/;
 var setVarReg = /<!--#\s*set\s+var=(['"])([^\r\n]+?)\1\s+value=(['"])([^\r\n]+?)\3\s*-->/;
 var echoReg = /<!--#\s*echo\s+var=(['"])([^\r\n]+?)\1(\s+default=(['"])([^\r\n]+?)\4)?\s*-->/;
 var ifReg = /<!--#\s*if\s+expr=(['"])([^\r\n]+?)\1\s*-->/;
@@ -149,7 +149,8 @@ SSI.prototype = {
     },
     /**
      *
-     * <!--# include file="path" -->
+     * <!--# include file="../path/relative/to/current/file" -->
+     * <!--# include virtual="/path/relative/to/options.baseDir" -->
      *
      * <!--# set var="k" value="v" -->
      *
@@ -165,7 +166,7 @@ SSI.prototype = {
      * @param  {Function} callback
      */
     compile: function(content, options, callback) {
-        var matches, seg, tpath, func;
+        var func;
 
         if (arguments.length < 3) {
             callback = options;
@@ -174,21 +175,46 @@ SSI.prototype = {
 
         options = extend({}, this.options, options || {});
 
-        //resolve inlcudes
+        this.resolveIncludes(content, options, function(err, content) {
+            if(err) {
+                return callback(err);
+            }
+
+            func = resolve(content);
+            return callback(null, func(options.payload || {}));
+        });
+    },
+
+    /**
+     * Rsolves all file includes.
+     *
+     * @param content
+     * @param options
+     * @param callback
+     */
+    resolveIncludes: function(content, options, callback) {
+        var matches, seg, tpath, subOptions, ssi = this;
+
         async.whilst( // https://www.npmjs.org/package/async#whilst-test-fn-callback-
-            function test() { return !!(matches = includeFileReg.exec(content)); },
+            function test() {return !!(matches = includeFileReg.exec(content)); },
             function insertInclude(next) {
                 seg = matches[0];
-
-                tpath = RegExp.$2;
-                fs.readFile(path.join(options.baseDir, tpath), {
+                tpath = path.join(options.baseDir, RegExp.$3);
+                fs.readFile(tpath, {
                         encoding: options.encoding
-                    }, function(err, innerContent) {
+                    }, function(err, innerContentRaw) {
                         if (err) {
                             return next(err);
                         }
-                        content = content.slice(0, matches.index) + innerContent + content.slice(matches.index + seg.length);
-                        next();
+                        // ensure that included files can include other files with relative paths
+                        subOptions = extend({}, options, {baseDir: path.dirname(tpath)});
+                        ssi.resolveIncludes(innerContentRaw, subOptions, function(err, innerContent) {
+                            if (err) {
+                                return next(err);
+                            }
+                            content = content.slice(0, matches.index) + innerContent + content.slice(matches.index + seg.length);
+                            next(null, content);
+                        });
                     }
                 );
             },
@@ -196,13 +222,9 @@ SSI.prototype = {
                 if (err) {
                     return callback(err);
                 }
-
-                func = resolve(content);
-                return callback(null, func(options.payload || {}));
+                return callback(null, content);
             }
         );
-
-
     },
     /**
      *
@@ -218,6 +240,7 @@ SSI.prototype = {
         }
 
         options = extend({}, this.options, options || {});
+        options.baseDir = path.dirname(filepath);
 
         var ssi = this;
 
