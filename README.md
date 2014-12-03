@@ -7,22 +7,27 @@ A server-side-include system for nodejs.
 
 We only support parts of nginx ssi syntax:
 
-    
+
       <!--# include file="path" -->
-     
+      <!--# include virtual="path" -->
+
       <!--# set var="k" value="v" -->
-     
+
       <!--# echo var="n" default="default" -->
-     
+
       <!--# if expr="test" -->
       <!--# elif expr="" -->
       <!--# else -->
       <!--# endif -->
 
+Note:
+
+* `file` includes are always relative to the baseDir provided in the options.
+* `virtual` includes are relative to the current file.
+
 usage
 ======
 
-    
     var SSI = require('node-ssi');
     var ssi = new SSI({
             baseDir: './html/',
