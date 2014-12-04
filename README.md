@@ -55,10 +55,11 @@ test
 changelog
 ======
  - 2014-11-03[17:00:51]:support special chars like `\n`,`\v` etc.
+ - 2014-12-04[12:39:20]:thanks for @nfriedly,we fixed some bugs and support more features
 
 todo
 ======
-use lexer syntax
+better lexer
 
 license
 ======
@@ -73,7 +74,7 @@ MIT
 [travis-image]: http://img.shields.io/travis/yanni4night/node-ssi.svg
 
 [grunt-url]:http://gruntjs.com/
-[grunt-image]: http://img.shields.io/badge/BUILT%20WITH-GRUNT-yellow.svg
+[grunt-image]: https://cdn.gruntjs.com/builtwith.png
 
 [appveyor-image]:https://ci.appveyor.com/api/projects/status/6sv21grqrixe60yu?svg=true
 [appveyor-url]:https://ci.appveyor.com/project/yanni4night/node-ssi
