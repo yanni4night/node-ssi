@@ -204,7 +204,7 @@ SSI.prototype = {
             function insertInclude(next) {
                 seg = matches[0];
                 isVirtual = RegExp.$1 == 'virtual';
-                basePath = (isVirtual && options.dirname)? options.dirname : options.baseDir;
+                basePath = (isVirtual && options.dirname && RegExp.$3.charAt(0) !== '/')? options.dirname : options.baseDir;
                 tpath = path.join(basePath, RegExp.$3);
                 fs.readFile(tpath, {
                         encoding: options.encoding
