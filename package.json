@@ -1,6 +1,6 @@
 {
   "name": "node-ssi",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A SSI parser",
   "main": "index.js",
   "scripts": {
