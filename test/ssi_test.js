@@ -119,6 +119,18 @@ exports.ssi = {
             test.done();
         });
     },
+    empty_var: function(test) {
+        var ssi = new SSI({
+            baseDir: path.join(__dirname, './mock')
+        });
+
+        ssi.compile(grunt.file.read(path.join(__dirname, './mock/empty-var.html')), function(err, output) {
+            grunt.log.debug(output);
+
+            test.ok(!!output);
+            test.done();
+        });
+    },
     file_include: function(test) {
         var ssi = new SSI({
             baseDir: path.join(__dirname, './mock')
