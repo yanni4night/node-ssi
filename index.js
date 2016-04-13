@@ -25,7 +25,7 @@ var async = require('async');
 
 
 var syntaxReg = /<!--#([^\r\n]+?)-->/mg;
-var includeFileReg = /<!--#\s*include\s+(file|virtual)=(['"])([^\r\n]+?)\2\s*-->/;
+var includeFileReg = /<!--#\s*include\s+(file|virtual)=(['"])([^\r\n\s]+?)\2\s*-->/;
 var setVarReg = /<!--#\s*set\s+var=(['"])([^\r\n]+?)\1\s+value=(['"])([^\r\n]*?)\3\s*-->/;
 var echoReg = /<!--#\s*echo\s+var=(['"])([^\r\n]+?)\1(\s+default=(['"])([^\r\n]+?)\4)?\s*-->/;
 var ifReg = /<!--#\s*if\s+expr=(['"])([^\r\n]+?)\1\s*-->/;
@@ -206,23 +206,34 @@ SSI.prototype = {
                 isVirtual = RegExp.$1 == 'virtual';
                 basePath = (isVirtual && options.dirname && RegExp.$3.charAt(0) !== '/')? options.dirname : options.baseDir;
                 tpath = path.join(basePath, RegExp.$3);
-                fs.readFile(tpath, {
-                        encoding: options.encoding
-                    }, function(err, innerContentRaw) {
+                fs.lstat(tpath,
+                    function(err, stats) {
                         if (err) {
                             return next(err);
                         }
-                        // ensure that included files can include other files with relative paths
-                        subOptions = extend({}, options, {dirname: path.dirname(tpath)});
-                        ssi.resolveIncludes(innerContentRaw, subOptions, function(err, innerContent) {
-                            if (err) {
-                                return next(err);
+                        if (stats.isDirectory()) {
+                            tpath = tpath.replace(/(\/)?$/, '/index.html');
+                        }
+                        fs.readFile(tpath, {
+                                encoding: options.encoding
+                            }, function(err, innerContentRaw) {
+                                if (err) {
+                                    return next(err);
+                                }
+                                // ensure that included files can include other files with relative paths
+                                subOptions = extend({}, options, {dirname: path.dirname(tpath)});
+                                ssi.resolveIncludes(innerContentRaw, subOptions, function(err, innerContent) {
+                                    if (err) {
+                                        return next(err);
+                                    }
+                                    content = content.slice(0, matches.index) + innerContent + content.slice(matches.index + seg.length);
+                                    next(null, content);
+                                });
                             }
-                            content = content.slice(0, matches.index) + innerContent + content.slice(matches.index + seg.length);
-                            next(null, content);
-                        });
+                        );
                     }
                 );
+
             },
             function includesComplete(err) {
                 if (err) {

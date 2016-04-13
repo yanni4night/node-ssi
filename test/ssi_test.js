@@ -153,5 +153,27 @@ exports.ssi = {
             test.ok(!!~output.indexOf('<nav>')); //from header.html
             test.done();
         });
+    },
+    virtual_include_with_directory: function(test) {
+      var ssi = new SSI({
+          baseDir: path.join(__dirname, './mock')
+      });
+
+      ssi.compileFile(path.join(__dirname, './mock/subdir/virtual-include-with-directory.html'), function(err, output) {
+          test.ok(!err);
+          test.ok(output, '<div>NESTED</div>');
+          test.done();
+      });
+    },
+    virtual_include_with_extra_attr: function(test) {
+      var ssi = new SSI({
+          baseDir: path.join(__dirname, './mock')
+      });
+
+      ssi.compileFile(path.join(__dirname, './mock/subdir/virtual-include-with-extra-attr.html'), function(err, output) {
+          test.ok(!err);
+          test.ok(output, '<div>NESTED</div>');
+          test.done();
+      });
     }
 };
