@@ -49,7 +49,7 @@ const config = {
     plugins: [
         new webpack.BannerPlugin('/*! ssi.js ' + (isDev ? 'Development' : 'Release') + ' v' + pkg.version +
             ' Build ' + timestamp + ' | (C) 2015~' + endYear +
-            ' yanni4night.com | github.com/yanni4night/node-ssi | MIT */\n', {
+            ' yanni4night.com | github.com/yanni4night/node-ssi | MIT */', {
                 raw: true,
                 entryOnly: true
             })
@@ -57,7 +57,8 @@ const config = {
 };
 
 if (!isDev) {
-    config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+    config.plugins.unshift(new webpack.optimize.UglifyJsPlugin({
+        comments: /@important/,
         compressor: {
             pure_getters: true,
             unsafe: true,
