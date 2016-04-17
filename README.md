@@ -5,6 +5,9 @@ node-ssi
 
 A server-side-include system for nodejs.
 
+# v1.0 is in progress
+
+
 We only support parts of nginx ssi syntax:
 
 
