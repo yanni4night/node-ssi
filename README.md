@@ -1,7 +1,7 @@
 node-ssi
 ======
 
-[![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency status][david-dm-image]][david-dm-url] [![Build status][appveyor-image]][appveyor-url] [![Built with Grunt][grunt-image]][grunt-url]
+[![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency status][david-dm-image]][david-dm-url] [![Build status][appveyor-image]][appveyor-url]
 
 A server-side-include system for nodejs.
 
@@ -75,9 +75,6 @@ MIT
 
 [travis-url]: https://travis-ci.org/yanni4night/node-ssi
 [travis-image]: http://img.shields.io/travis/yanni4night/node-ssi.svg
-
-[grunt-url]:http://gruntjs.com/
-[grunt-image]: https://cdn.gruntjs.com/builtwith.png
 
 [appveyor-image]:https://ci.appveyor.com/api/projects/status/6sv21grqrixe60yu?svg=true
 [appveyor-url]:https://ci.appveyor.com/project/yanni4night/node-ssi
