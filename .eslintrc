@@ -1,17 +1,10 @@
 {
-    "extends": "eslint:recommended",
-    "env": {
-        "node": true
-    },
+    "extend": "eslint:recommended",
     "parserOptions": {
         "ecmaVersion": 6,
         "sourceType": "module"
     },
-    "globals": {
-        "Promise": true
-    },
-    rules: {
-        'no-console': 0,
-        'no-extra-boolean-cast': 0
+    "rules": {
+        "semi": 2
     }
 }

@@ -1,4 +1,15 @@
 {
   "presets": ["es2015"],
-  "plugins": ["transform-object-assign", "transform-class-properties"]
+  "plugins": [
+    "transform-object-assign",
+    "check-es2015-constants",
+    "transform-object-rest-spread"
+  ],
+  "env": {
+    "commonjs": {
+      "plugins": [
+        ["transform-es2015-modules-commonjs", { "loose": true }]
+      ]
+    }
+  }
 }

@@ -9,99 +9,16 @@
  * @version 0.1.0
  * @since 0.1.0
  */
-const fs = require('fs');
+import tags from './tags';
+import loader from './loader';
+import path from 'path';
+import utils from './utils';
+import parser from './parser';
 
 
 const SYNTAX_PATTERN = /<!--#([^\r\n]+?)-->/mg;
 
-const SYNTAX_TYPES = {
-    STRING: 'STRING',
-    COMMAND: 'COMMAND'
-};
-
-const TYPES = {
-    /** Whitespace */
-    WHITESPACE: 0,
-    /** Plain string */
-    STRING: 1,
-    /** Variable */
-    VAR: 9,
-    /** Number */
-    NUMBER: 10,
-    /** SSI-valid comparator */
-    COMPARATOR: 20,
-    /** Variable assignment */
-    ASSIGNMENT: 24,
-    /** Unknown type */
-    UNKNOWN: 100
-};
-
-const RULES = [{
-    type: TYPES.WHITESPACE,
-    regex: [
-        /^\s+/
-    ]
-}, {
-    type: TYPES.STRING,
-    regex: [
-        /^""/,
-        /^".*?[^\\]"/,
-        /^''/,
-        /^'.*?[^\\]'/
-    ]
-}, {
-    type: TYPES.VAR,
-    regex: [
-        /^[a-zA-Z_$]\w*((\.\$?\w*)+)?/,
-        /^[a-zA-Z_$]\w*/
-    ]
-}, {
-    type: TYPES.ASSIGNMENT,
-    regex: [
-        /^(=)/
-    ]
-}, {
-    type: TYPES.NUMBER,
-    regex: [
-        /^[+\-]?\d+(\.\d+)?/
-    ]
-}];
-
-function reader(str) {
-    var matched;
-
-    RULES.some(rule => {
-        return rule.regex.some(regex => {
-            var match = str.match(regex),
-                normalized;
-
-            if (!match) {
-                return;
-            }
-
-            normalized = match[rule.idx || 0].replace(/\s*$/, '');
-            normalized = (rule.hasOwnProperty('replace') && rule.replace.hasOwnProperty(normalized)) ?
-                rule.replace[normalized] : normalized;
-
-            matched = {
-                match: normalized,
-                type: rule.type,
-                length: match[0].length
-            };
-            return true;
-        });
-    });
-
-    if (!matched) {
-        matched = {
-            match: str,
-            type: TYPES.UNKNOWN,
-            length: str.length
-        };
-    }
-
-    return matched;
-}
+const noop = () => {};
 
 /**
  * Read a string and break it into separate token types.
@@ -178,7 +95,7 @@ const parseContent = content => {
                         throw new Error('Wrong =');
                     }
 
-                    break
+                    break;
                 case TYPES.WHITESPACE:
                     break;
                 default:
@@ -218,27 +135,61 @@ const parseFile = (filePath, options = {
         fs.readFile(filePath, Object.assign({}, options), (err, content) => {
             err ? reject(err) : resolve(content);
         });
-    }).then(parseContent);
+    }).then(content => parse(content, Object.assign(options, {
+        filePath
+    })));
 };
 
-
 export class SSI {
-    constructor(options) {
-        Object.assign({
+    constructor(opts) {
+        this.options = Object.assign({
             baseDir: '.',
             encoding: 'utf-8',
-            payload: {}
-        }, options);
+            tagControls: ['<!--#', '-->'],
+            locals: {}
+        }, opts);
     }
-    compileFile(...args) {
-        return parseFile(...args);
+    parse(source, opts) {
+        let options = Object.assign({}, this.options, opts);
+        return parser.parse(this, source, options, tags);
+    }
+    precompile(source, opts) {
+        const tokens = this.parse(source, opts);
+        try {
+            tpl = new Function('_ssi', '_ctx', '_utils', '_fn',
+                '  var _output = "";\n' +
+                parser.compile(tokens, opts) + '\n' +
+                '  return _output;\n'
+            );
+        } catch (e) {
+            utils.throwError(e, null, opts.filePath);
+        }
+
+        return {
+            tpl, tokens
+        };
+    }
+    compile(source, opts) {
+        let pre = this.precompile(source, opts);
+        const options = Object.assin({}, this.options, opts);
+        return compiled = locals => pre.tpl(this, Object.assign({}, options.locals, locals), utils, noop);
+    }
+    compileFile(filePath, opts) {
+        const {
+            options
+        } = this;
+        const absFilePath = path.join(options.baseDir, filePath);
+        const content = loader.load(filePath, {
+            encoding: options.encoding
+        });
+        return this.compile(content, Object.assin(opts, {
+            filePath: absFilePath
+        }));
+    }
+    render(source, opts) {
+        return this.compile(source, opts)();
+    }
+    renderFile(filePath, locals) {
+        return this.compileFile(filePath)(locals);
     }
 }
-
-const ssi = new SSI();
-const filepath = require('path').join(__dirname, '..', 'test/mock/index.html');
-ssi.compileFile(filepath).then(stack => {
-    console.log(JSON.stringify(stack, null, 2));
-}).catch(e => {
-    console.error(e);
-});
