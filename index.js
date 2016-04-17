@@ -25,7 +25,7 @@ var async = require('async');
 
 
 var syntaxReg = /<!--#([^\r\n]+?)-->/mg;
-var includeFileReg = /<!--#\s*include\s+(file|virtual)=(['"])([^\r\n\s]+?)\2\s*(.*)-->/;
+var includeFileReg = /<!--#\s*include\s+(file|virtual)=(['"])([^\r\n\s]+?)\2\s*(.*?)-->/;
 var setVarReg = /<!--#\s*set\s+var=(['"])([^\r\n]+?)\1\s+value=(['"])([^\r\n]*?)\3\s*-->/;
 var echoReg = /<!--#\s*echo\s+var=(['"])([^\r\n]+?)\1(\s+default=(['"])([^\r\n]+?)\4)?\s*-->/;
 var ifReg = /<!--#\s*if\s+expr=(['"])([^\r\n]+?)\1\s*-->/;
@@ -70,7 +70,7 @@ function resolve(tpl) {
             case echoReg.test(matches[0]):
                 key = RegExp.$2;
                 val = RegExp.$5 || "";
-                fnStr += '_r += ' + key + '||"' + val + '";\n';
+                fnStr += '_r += "undefined" !== typeof(' + key + ') ? ' + key + ' : "' + val + '";\n';
                 break;
             case ifReg.test(matches[0]):
                 pat = String.prototype.trim.call(RegExp.$2 || "");

@@ -66,6 +66,7 @@ exports.ssi = {
             test.ok(!!~output.indexOf('\\u'));
             test.ok(!!~output.indexOf('&#8226;'));
             test.ok(!!~output.indexOf('&amp;'));
+            test.ok(!!~output.indexOf('noop'));
             //check left syntax
             for (var reg in SSI.prototype.regExps) {
                 test.ok(!SSI.prototype.regExps[reg].test(output));
@@ -100,6 +101,7 @@ exports.ssi = {
             test.ok(!!~output.indexOf('\\u'));
             test.ok(!!~output.indexOf('&#8226;'));
             test.ok(!!~output.indexOf('&amp;'));
+            test.ok(!!~output.indexOf('noop'));
             //check left syntax
             for (var reg in SSI.prototype.regExps) {
                 test.ok(!SSI.prototype.regExps[reg].test(output));
