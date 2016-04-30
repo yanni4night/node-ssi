@@ -9,11 +9,11 @@
  * @version 0.1.0
  * @since 0.1.0
  */
-import tags from './tags';
-import loader from './loader';
+import * as tags from './tags';
+import * as loader from './loader';
 import path from 'path';
-import utils from './utils';
-import parser from './parser';
+import * as utils from './utils';
+import * as parser from './parser';
 
 
 const SYNTAX_PATTERN = /<!--#([^\r\n]+?)-->/mg;
@@ -27,7 +27,7 @@ const noop = () => {};
  * @return {Array}     Array of defined types, potentially stripped or replaced with more suitable content.
  * @private
  */
-const parseLine = str => {
+/*const parseLine = str => {
     var offset = 0,
         tokens = [],
         substr,
@@ -39,7 +39,7 @@ const parseLine = str => {
         tokens.push(match);
     }
     return tokens;
-};
+};*/
 
 
 /**
@@ -48,7 +48,7 @@ const parseLine = str => {
  * @param  {string} content
  * @return {Promise}
  */
-const parseContent = content => {
+/*const parseContent = content => {
     return new Promise(resolve => {
         let matches;
         let startOffset = 0;
@@ -121,14 +121,14 @@ const parseContent = content => {
         resolve(syntaxQ);
     });
 };
-/**
+*//**
  * Parse a file on disk.
  * 
  * @param  {string} filePath
  * @param  {Object} options
  * @return {Promise}
  */
-const parseFile = (filePath, options = {
+/*const parseFile = (filePath, options = {
     encoding: 'utf-8'
 }) => {
     return new Promise((resolve, reject) => {
@@ -138,7 +138,7 @@ const parseFile = (filePath, options = {
     }).then(content => parse(content, Object.assign(options, {
         filePath
     })));
-};
+};*/
 
 export class SSI {
     constructor(opts) {
@@ -155,6 +155,7 @@ export class SSI {
     }
     precompile(source, opts) {
         const tokens = this.parse(source, opts);
+        let tpl;
         try {
             tpl = new Function('_ssi', '_ctx', '_utils', '_fn',
                 '  var _output = "";\n' +
@@ -170,9 +171,9 @@ export class SSI {
         };
     }
     compile(source, opts) {
-        let pre = this.precompile(source, opts);
-        const options = Object.assin({}, this.options, opts);
-        return compiled = locals => pre.tpl(this, Object.assign({}, options.locals, locals), utils, noop);
+        const options = Object.assign({}, this.options, opts);
+        let pre = this.precompile(source, options);
+        return (locals => pre.tpl(this, Object.assign({}, options.locals, locals), utils, noop));
     }
     compileFile(filePath, opts) {
         const {
@@ -182,7 +183,7 @@ export class SSI {
         const content = loader.load(filePath, {
             encoding: options.encoding
         });
-        return this.compile(content, Object.assin(opts, {
+        return this.compile(content, Object.assign({}, opts, {
             filePath: absFilePath
         }));
     }

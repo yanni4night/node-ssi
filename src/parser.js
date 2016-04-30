@@ -9,10 +9,10 @@
  * @version 1.0.0
  * @since 1.0.0
  */
-import lexer from './lexer';
-import utils from './utils';
+import * as lexer from './lexer';
+import * as utils from './utils';
 
-const _t = lexer.types;
+const _t = lexer.TYPES;
 const _reserved = 'include,block,endblock,echo,if,endif,set'.split(',');
 
 /*!

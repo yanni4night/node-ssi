@@ -26,6 +26,9 @@ const startYear = 2015;
 const endYear = now.getFullYear()
 
 const config = {
+    externals: {
+        fs: 'fs'
+    },
     node:{
         fs: 'empty'
     },
@@ -37,7 +40,8 @@ const config = {
     },
     output: {
         path: __dirname,
-        filename: "ssi.dist.js"
+        filename: "ssi.dist.js",
+        libraryTarget: 'umd'
     },
     module: {
         loaders: [{

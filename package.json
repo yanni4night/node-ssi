@@ -4,7 +4,8 @@
   "description": "A SSI parser",
   "main": "ssi.dist.js",
   "scripts": {
-    "prepublish": "./node_modules/.bin/webpack"
+    "prepublish": "NODE_ENV=release ./node_modules/.bin/webpack",
+    "build": "NODE_ENV=development ./node_modules/.bin/webpack"
   },
   "repository": {
     "type": "git",

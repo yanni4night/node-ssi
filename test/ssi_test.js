@@ -31,11 +31,18 @@
 */
 'use strict';
 
-var grunt = require('grunt');
-var SSI = require('../index');
+var SSI = require('../ssi.dist').SSI;
 var path = require('path');
 
-exports.ssi = {
+var ssi = new SSI({
+            baseDir: path.join(__dirname, './mock')
+});
+
+console.log(ssi.renderFile(path.join(__dirname,'mock','index.html'),{
+    filePath: '///ccc'
+}));
+
+/*exports.ssi = {
     setUp: function(done) {
         done();
     },
@@ -155,3 +162,4 @@ exports.ssi = {
         });
     }
 };
+*/

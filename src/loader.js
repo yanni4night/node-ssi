@@ -9,7 +9,7 @@
  * @version 1.0.0
  * @since 1.0.0
  */
-import fs from 'fs';
+import * as fs from 'fs';
 
 export const load = (filePath, opts) => {
         return fs.readFileSync(filePath, opts);
