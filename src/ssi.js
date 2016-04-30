@@ -19,142 +19,23 @@ import * as parser from './parser';
 const SYNTAX_PATTERN = /<!--#([^\r\n]+?)-->/mg;
 
 const noop = () => {};
-
 /**
- * Read a string and break it into separate token types.
- * 
- * @param  {string} str
- * @return {Array}     Array of defined types, potentially stripped or replaced with more suitable content.
- * @private
+ * render     →   compile    →    precompile   → [parser.parse/compile]
+ *                   ↑
+ * renderFile → compileFile 
  */
-/*const parseLine = str => {
-    var offset = 0,
-        tokens = [],
-        substr,
-        match;
-    while (offset < str.length) {
-        substr = str.substring(offset);
-        match = reader(substr);
-        offset += match.length;
-        tokens.push(match);
-    }
-    return tokens;
-};*/
-
-
-/**
- * Parse a string content.
- * 
- * @param  {string} content
- * @return {Promise}
- */
-/*const parseContent = content => {
-    return new Promise(resolve => {
-        let matches;
-        let startOffset = 0;
-        const syntaxQ = [];
-        // const ifStack = [];
-
-        while (!!(matches = SYNTAX_PATTERN.exec(content))) {
-            syntaxQ.push({
-                type: SYNTAX_TYPES.STRING,
-                payload: content.slice(startOffset, matches.index)
-            });
-
-            const cmd = {
-                parameters: {},
-                command: null
-            };
-
-            const lineTokens = parseLine(matches[1].trim()).filter(token => (token.type !== TYPES.WHITESPACE));
-
-            let tmpKey;
-            let prevToken;
-            let prevTokenType;
-
-            for (let i = 0; i < lineTokens.length; ++i) {
-                let type = lineTokens[i].type;
-
-                switch (type) {
-                case TYPES.VAR:
-                    if (!prevToken) {
-                        cmd.command = lineTokens[i].match;
-                    } else {
-                        tmpKey = lineTokens[i].match;
-                    }
-                    break;
-                case TYPES.STRING:
-                    if (!prevToken && (prevTokenType !== TYPES.ASSIGNMENT)) {
-                        throw new Error('Wrong string');
-                    }
-                    cmd.parameters[tmpKey] = lineTokens[i].match;
-                    tmpKey = null;
-                    break;
-                case TYPES.ASSIGNMENT:
-                    if (!prevToken && (prevTokenType !== TYPES.VAR)) {
-                        throw new Error('Wrong =');
-                    }
-
-                    break;
-                case TYPES.WHITESPACE:
-                    break;
-                default:
-                    throw new Error('Illegal token:' + type);
-                }
-                prevToken = lineTokens[i];
-                prevTokenType = prevToken.type;
-            }
-            if (prevToken) {
-
-                if (TYPES.STRING !== prevTokenType && !!tmpKey) {
-                    throw new Error('Uncomplete:' + prevToken.match + ':' + prevTokenType);
-                }
-
-                syntaxQ.push({
-                    type: SYNTAX_TYPES.COMMAND,
-                    payload: cmd
-                });
-            }
-
-            startOffset = matches[0].length + matches.index;
-        }
-        resolve(syntaxQ);
-    });
-};
-*//**
- * Parse a file on disk.
- * 
- * @param  {string} filePath
- * @param  {Object} options
- * @return {Promise}
- */
-/*const parseFile = (filePath, options = {
-    encoding: 'utf-8'
-}) => {
-    return new Promise((resolve, reject) => {
-        fs.readFile(filePath, Object.assign({}, options), (err, content) => {
-            err ? reject(err) : resolve(content);
-        });
-    }).then(content => parse(content, Object.assign(options, {
-        filePath
-    })));
-};*/
-
 export class SSI {
     constructor(opts) {
         this.options = Object.assign({
-            baseDir: '.',
+            //baseDir: '.',
             encoding: 'utf-8',
             tagControls: ['<!--#', '-->'],
             locals: {}
         }, opts);
     }
-    parse(source, opts) {
-        let options = Object.assign({}, this.options, opts);
-        return parser.parse(this, source, options, tags);
-    }
     precompile(source, opts) {
-        const tokens = this.parse(source, opts);
+        let options = Object.assign({}, this.options, opts);
+        const tokens = parser.parse(this, source, options, tags);
         let tpl;
         try {
             tpl = new Function('_ssi', '_ctx', '_utils', '_fn',
@@ -167,22 +48,33 @@ export class SSI {
         }
 
         return {
-            tpl, tokens
+            tpl,
+            tokens
         };
     }
-    compile(source, opts) {
-        const options = Object.assign({}, this.options, opts);
-        let pre = this.precompile(source, options);
-        return (locals => pre.tpl(this, Object.assign({}, options.locals, locals), utils, noop));
+    compile(source, opts = {}) {
+        let pre = this.precompile(source, opts);
+        return (locals => pre.tpl(this, Object.assign({}, opts.locals, locals), utils, noop));
     }
-    compileFile(filePath, opts) {
+    compileFile(filePath, opts = {}) {
         const {
             options
         } = this;
-        const absFilePath = path.join(options.baseDir, filePath);
-        const content = loader.load(filePath, {
+
+        let from;
+        
+        if (options.baseDir) {
+            from = options.baseDir;
+        } else {
+            from = (opts.resolveFrom) ? path.dirname(opts.resolveFrom) : process.cwd();
+        }
+
+        const absFilePath = path.resolve(from, to);
+
+        const content = loader.load(absFilePath, {
             encoding: options.encoding
         });
+
         return this.compile(content, Object.assign({}, opts, {
             filePath: absFilePath
         }));

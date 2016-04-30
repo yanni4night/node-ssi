@@ -13,7 +13,7 @@ import * as lexer from './lexer';
 import * as utils from './utils';
 
 const _t = lexer.TYPES;
-const _reserved = 'include,block,endblock,echo,if,endif,set'.split(',');
+const _reserved = 'include,block,endblock,echo,if,endif,set,file,virtual'.split(',');
 
 /*!
  * Makes a string safe for a regular expression.
@@ -93,25 +93,15 @@ class TokenParser {
     }
 
     parseVar(token, match, lastState) {
-        var self = this;
 
         match = match.split('.');
 
         if (_reserved.indexOf(match[0]) !== -1) {
             utils.throwError('Reserved keyword "' + match[0] + '" attempted to be used as a variable', self.line,
-                self.filename);
+                this.filePath);
         }
 
-        self.filterApplyIdx.push(self.out.length);
-        if (lastState === _t.CURLYOPEN) {
-            if (match.length > 1) {
-                utils.throwError('Unexpected dot', self.line, self.filename);
-            }
-            self.out.push(match[0]);
-            return;
-        }
-
-        self.out.push(self.checkMatch(match));
+        this.out.push(this.checkMatch(match));
     }
 
     checkMatch(match) {
@@ -162,7 +152,6 @@ export const parse = (ssi, source, opts, tags, filters) => {
         parent = null,
         tokens = [],
         blocks = {},
-        inRaw = false,
         stripNext;
 
     /**
@@ -177,11 +166,11 @@ export const parse = (ssi, source, opts, tags, filters) => {
             parser,
             out;
 
-        parser = new TokenParser(tokens, line, opts.filename);
+        parser = new TokenParser(tokens, line, opts.filePath);
         out = parser.parse().join('');
 
         if (parser.state.length) {
-            utils.throwError('Unable to parse "' + str + '"', line, opts.filename);
+            utils.throwError('Unable to parse "' + str + '"', line, opts.filePath);
         }
 
         /**
@@ -289,7 +278,7 @@ export const parse = (ssi, source, opts, tags, filters) => {
     });
 
     return {
-        name: opts.filename,
+        name: opts.filePath,
         parent: parent,
         tokens: tokens,
         blocks: blocks
@@ -336,7 +325,7 @@ exports.compile = function (template, parents, options, blockName) {
          * @param {SwigOpts} [options] Swig Options Object
          * @param {string} [blockName] Name of the direct block parent, if any.
          */
-        o = token.compile(exports.compile, token.args ? token.args.slice(0) : [], token.content ? token.content
+        o = token.compile(compile, token.args ? token.args.slice(0) : [], token.content ? token.content
             .slice(0) : [], parents, options, blockName);
         out += o || '';
     });
