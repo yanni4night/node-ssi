@@ -69,7 +69,7 @@ export class SSI {
             from = (opts.resolveFrom) ? path.dirname(opts.resolveFrom) : process.cwd();
         }
 
-        const absFilePath = path.resolve(from, to);
+        const absFilePath = path.resolve(from, filePath);
 
         const content = loader.load(absFilePath, {
             encoding: options.encoding

@@ -135,15 +135,15 @@ class TokenParser {
 };
 
 
-export const parse = (ssi, source, opts, tags, filters) => {
+export const parse = (ssi, source, opts, tags) => {
     source = source.replace(/\r\n/g, '\n');
     var escape = opts.autoescape,
         tagOpen = opts.tagControls[0],
         tagClose = opts.tagControls[1],
         escapedTagOpen = escapeRegExp(tagOpen),
         escapedTagClose = escapeRegExp(tagClose),
-        tagStrip = new RegExp('^' + escapedTagOpen + '-?\\s*-?|-?\\s*-?' + escapedTagClose + '$', 'g'),
         anyChar = '[\\s\\S]*?',
+        tagStrip = new RegExp('^' + escapedTagOpen + '-?\\s*-?|-?\\s*-?' + escapedTagClose + '$', 'g'),
         // Split the template source based on variable, tag, and comment blocks
         // /(\{%[\s\S]*?%\}|\{\{[\s\S]*?\}\}|\{#[\s\S]*?#\})/
         splitter = new RegExp('(' + escapedTagOpen + anyChar + escapedTagClose + ')'),
@@ -151,8 +151,7 @@ export const parse = (ssi, source, opts, tags, filters) => {
         stack = [],
         parent = null,
         tokens = [],
-        blocks = {},
-        stripNext;
+        blocks = {};
 
     /**
      * Parse a variable.
