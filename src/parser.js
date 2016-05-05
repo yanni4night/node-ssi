@@ -13,7 +13,7 @@ import * as lexer from './lexer';
 import * as utils from './utils';
 
 const _t = lexer.TYPES;
-const _reserved = 'include,block,endblock,echo,if,endif,set,file,virtual'.split(',');
+// const _reserved = 'include,block,endblock,echo,if,endif,set,file,virtual'.split(',');
 
 /*!
  * Makes a string safe for a regular expression.
@@ -66,13 +66,9 @@ class TokenParser {
     }
 
     parseToken(token) {
-        var self = this,
-            fn = self._parsers[token.type] || self._parsers['*'],
-            match = token.match,
-            prevToken = self.prevToken,
-            prevTokenType = prevToken ? prevToken.type : null,
-            lastState = (self.state.length) ? self.state[self.state.length - 1] : null,
-            temp;
+        var match = token.match,
+            prevToken = this.prevToken,
+            prevTokenType = prevToken ? prevToken.type : null;
 
         /*if (fn && typeof fn === 'function') {
             if (!fn.call(this, token)) {
@@ -111,8 +107,7 @@ class TokenParser {
 
 export const parse = (ssi, source, opts, tags) => {
     source = source.replace(/\r\n/g, '\n');
-    var escape = opts.autoescape,
-        tagOpen = opts.tagControls[0],
+    var tagOpen = opts.tagControls[0],
         tagClose = opts.tagControls[1],
         escapedTagOpen = escapeRegExp(tagOpen),
         escapedTagClose = escapeRegExp(tagClose),
@@ -166,24 +161,8 @@ export const parse = (ssi, source, opts, tags) => {
         };
     };
 
-    /**
-     * Strip the whitespace from the previous token, if it is a string.
-     * @param  {object} token Parsed token.
-     * @return {object}       If the token was a string, trailing whitespace will be stripped.
-     */
-    function stripPrevToken(token) {
-        if (typeof token === 'string') {
-            token = token.replace(/\s*$/, '');
-        }
-        return token;
-    }
-
-    /*!
-     * Loop over the source, split via the tag/var/comment regular expression splitter.
-     * Send each chunk to the appropriate parser.
-     */
     utils.each(source.split(splitter), function (chunk) {
-        var token, lines, stripPrev, prevToken, prevChildToken;
+        var token, lines;
 
         if (!chunk) {
             return;
@@ -230,7 +209,7 @@ export const parse = (ssi, source, opts, tags) => {
 };
 
 
-export const compile = function (template, options, blockName) {
+export const compile = function (template) {
     var out = '',
         tokens = utils.isArray(template) ? template : template.tokens;
 

@@ -15,9 +15,6 @@ import path from 'path';
 import * as utils from './utils';
 import * as parser from './parser';
 
-
-const SYNTAX_PATTERN = /<!--#([^\r\n]+?)-->/mg;
-
 const noop = () => {};
 /**
  * render     →   compile    →    precompile   → [parser.parse/compile]
@@ -51,7 +48,7 @@ export class SSI {
     }
     compile(source, opts = {}) {
         const tpl = this.precompile(source, opts);
-        return (locals => tpl(this, Object.assign({}, opts.locals, this.options.locals), utils, noop));
+        return (locals => tpl(this, Object.assign({}, opts.locals, locals), utils, noop));
     }
     compileFile(filePath, opts = {}) {
         const {

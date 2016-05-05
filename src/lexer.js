@@ -10,11 +10,6 @@
   * @since 1.0.0
   */
 
-const SYNTAX_TYPES = {
-    STRING: 'STRING',
-    COMMAND: 'COMMAND'
-};
-
 export const TYPES = {
     /** Whitespace */
     WHITESPACE: 0,
