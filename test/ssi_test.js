@@ -23,7 +23,9 @@ var ssi = new SSI({
 var filePath = path.join(__dirname, 'mock', 'tmp.html');
 var fileContent = fs.readFileSync(filePath,'utf-8');
 var ctx = {};
-var tplFunc = ssi.precompile(fileContent);
+var tplFunc = ssi.precompile(fileContent, {
+    filePath: filePath
+});
 
 console.log(tplFunc.toString());
 console.log();
