@@ -14,12 +14,21 @@
 
 var SSI = require('../ssi.dist').SSI;
 var path = require('path');
+var fs = require('fs');
 
 var ssi = new SSI({
     baseDir: path.join(__dirname, './mock')
 });
 
-console.log(ssi.renderFile(path.join(__dirname, 'mock', 'tmp.html')));
+var filePath = path.join(__dirname, 'mock', 'tmp.html');
+var fileContent = fs.readFileSync(filePath,'utf-8');
+var ctx = {};
+var tplFunc = ssi.precompile(fileContent);
+
+console.log(tplFunc.toString());
+console.log();
+console.log();
+console.log(tplFunc(ssi, ctx));
 
 /*exports.ssi = {
     setUp: function(done) {

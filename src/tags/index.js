@@ -10,5 +10,7 @@
   * @since 1.0.0
   */
 import * as include from './include';
+import * as set from './set';
+import * as echo from './echo';
 
-export {include};
+export {include, set, echo};

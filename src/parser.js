@@ -33,20 +33,22 @@ class TokenParser {
         this._parsers = {};
         this.line = line;
         this.filename = filename;
+        this.tokens = tokens;
+        this.paramMap = {};
+        this.lastVar = null;
     }
 
     parse() {
-
         if (this._parsers.start) {
             this._parsers.start.call(this);
         }
-        utils.each(tokens, (token, i) => {
-            var prevToken = tokens[i - 1];
-            this.isLast = (i === tokens.length - 1);
+        utils.each(this.tokens, (token, i) => {
+            var prevToken = this.tokens[i - 1];
+            this.isLast = (i === this.tokens.length - 1);
             if (prevToken) {
                 while (prevToken.type === _t.WHITESPACE) {
                     i -= 1;
-                    prevToken = tokens[i - 1];
+                    prevToken = this.tokens[i - 1];
                 }
             }
             this.prevToken = prevToken;
@@ -72,65 +74,37 @@ class TokenParser {
             lastState = (self.state.length) ? self.state[self.state.length - 1] : null,
             temp;
 
-        if (fn && typeof fn === 'function') {
+        /*if (fn && typeof fn === 'function') {
             if (!fn.call(this, token)) {
                 return;
             }
-        }
-
+        }*/
+        //console.log(token, match);
         switch (token.type) {
         case _t.WHITESPACE:
             break;
-
         case _t.STRING:
-            this.out.push(match.replace(/\\/g, '\\\\'));
+            if (prevTokenType !== _t.ASSIGNMENT) {
+                utils.throwError('Invalid string "' + match + '"', this.line, this.filename);
+            }
+            this.paramMap[this.lastVar] = match.match(/^(['"])(.*)\1$/)[2];
+            this.lastVar = null;
+            //this.out.push(match.replace(/\\/g, '\\\\'));
             break;
 
+        case _t.ASSIGNMENT:
+            if (prevTokenType !== _t.VAR) {
+                utils.throwError('Invalid assignment "' + match + '"', this.line, this.filename);
+            }
+            break;
         case _t.VAR:
-            this.parseVar(token, match, lastState);
+            if (prevTokenType !== _t.WHITESPACE && prevTokenType !== _t.STRING && prevTokenType !== null) {
+                utils.throwError('Invalid var "' + match + '"', this.line, this.filename);
+            }
+            this.lastVar = match;
             break;
         }
-    }
-
-    parseVar(token, match, lastState) {
-
-        match = match.split('.');
-
-        if (_reserved.indexOf(match[0]) !== -1) {
-            utils.throwError('Reserved keyword "' + match[0] + '" attempted to be used as a variable', self.line,
-                this.filePath);
-        }
-
-        this.out.push(this.checkMatch(match));
-    }
-
-    checkMatch(match) {
-        var temp = match[0],
-            result;
-
-        function checkDot(ctx) {
-            var c = ctx + temp,
-                m = match,
-                build = '';
-
-            build = '(typeof ' + c + ' !== "undefined" && ' + c + ' !== null';
-            utils.each(m, function (v, i) {
-                if (i === 0) {
-                    return;
-                }
-                build += ' && ' + c + '.' + v + ' !== undefined && ' + c + '.' + v + ' !== null';
-                c += '.' + v;
-            });
-            build += ')';
-
-            return build;
-        }
-
-        function buildDot(ctx) {
-            return '(' + checkDot(ctx) + ' ? ' + ctx + match.join('.') + ' : "")';
-        }
-        result = '(' + checkDot('_ctx.') + ' ? ' + buildDot('_ctx.') + ' : ' + buildDot('') + ')';
-        return '(' + result + ' !== null ? ' + result + ' : ' + '"" )';
+        return this.paramMap;
     }
 };
 
@@ -143,44 +117,14 @@ export const parse = (ssi, source, opts, tags) => {
         escapedTagOpen = escapeRegExp(tagOpen),
         escapedTagClose = escapeRegExp(tagClose),
         anyChar = '[\\s\\S]*?',
-        tagStrip = new RegExp('^' + escapedTagOpen + '-?\\s*-?|-?\\s*-?' + escapedTagClose + '$', 'g'),
+        tagStrip = new RegExp('^' + escapedTagOpen + '-?\\s*-?|-?\\s*-?' + escapedTagClose + '$', 'g'), // todo -
         // Split the template source based on variable, tag, and comment blocks
         // /(\{%[\s\S]*?%\}|\{\{[\s\S]*?\}\}|\{#[\s\S]*?#\})/
         splitter = new RegExp('(' + escapedTagOpen + anyChar + escapedTagClose + ')'),
         line = 1,
         stack = [],
-        parent = null,
         tokens = [],
         blocks = {};
-
-    /**
-     * Parse a variable.
-     * @param  {string} str  String contents of the variable, between <i>{{</i> and <i>}}</i>
-     * @param  {number} line The line number that this variable starts on.
-     * @return {VarToken}      Parsed variable token object.
-     * @private
-     */
-    function parseVariable(str, line) {
-        var tokens = lexer.read(utils.strip(str)),
-            parser,
-            out;
-
-        parser = new TokenParser(tokens, line, opts.filePath);
-        out = parser.parse().join('');
-
-        if (parser.state.length) {
-            utils.throwError('Unable to parse "' + str + '"', line, opts.filePath);
-        }
-
-        /**
-         * A parsed variable token.
-         * @typedef {object} VarToken
-         * @property {function} compile Method for compiling this token.
-         */
-        return {
-            compile: () => '_output += ' + out + ';\n'
-        };
-    }
 
     const parseTag = (str, line) => {
         var tokens, parser, chunks, tagName, tag, args, last;
@@ -201,20 +145,22 @@ export const parse = (ssi, source, opts, tags) => {
         }
 
         tokens = lexer.read(utils.strip(chunks.join(' ')));
+
         parser = new TokenParser(tokens, line, opts.filePath);
         tag = tags[tagName];
 
-        if (!tag.parse(chunks[1], line, parser, _t, stack, opts, ssi)) {
+        // Register token parsers
+        /*if (!tag.parse(chunks[1], line, parser, _t, stack, opts, ssi)) {
             utils.throwError('Unexpected tag "' + tagName + '"', line, opts.filePath);
-        }
+        }*/
 
         parser.parse();
         args = parser.out;
 
         return {
             compile: tag.compile,
+            params: parser.paramMap,
             args: args,
-            content: [],
             ends: tag.ends,
             name: tagName
         };
@@ -278,22 +224,13 @@ export const parse = (ssi, source, opts, tags) => {
 
     return {
         name: opts.filePath,
-        parent: parent,
         tokens: tokens,
         blocks: blocks
     };
 };
 
 
-/**
- * Compile an array of tokens.
- * @param  {Token[]} template     An array of template tokens.
- * @param  {Templates[]} parents  Array of parent templates.
- * @param  {SwigOpts} [options]   Swig options object.
- * @param  {string} [blockName]   Name of the current block context.
- * @return {string}               Partial for a compiled JavaScript method that will output a rendered template.
- */
-exports.compile = function (template, parents, options, blockName) {
+export const compile = function (template, options, blockName) {
     var out = '',
         tokens = utils.isArray(template) ? template : template.tokens;
 
@@ -305,27 +242,7 @@ exports.compile = function (template, parents, options, blockName) {
             return;
         }
 
-        /**
-         * Compile callback for VarToken and TagToken objects.
-         * @callback compile
-         *
-         * @example
-         * exports.compile = function (compiler, args, content, parents, options, blockName) {
-         *   if (args[0] === 'foo') {
-         *     return compiler(content, parents, options, blockName) + '\n';
-         *   }
-         *   return '_output += "fallback";\n';
-         * };
-         *
-         * @param {parserCompiler} compiler
-         * @param {array} [args] Array of parsed arguments on the for the token.
-         * @param {array} [content] Array of content within the token.
-         * @param {array} [parents] Array of parent templates for the current template context.
-         * @param {SwigOpts} [options] Swig Options Object
-         * @param {string} [blockName] Name of the direct block parent, if any.
-         */
-        o = token.compile(compile, token.args ? token.args.slice(0) : [], token.content ? token.content
-            .slice(0) : [], parents, options, blockName);
+        o = token.compile(token.params);
         out += o || '';
     });
 

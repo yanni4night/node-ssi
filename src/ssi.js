@@ -47,14 +47,11 @@ export class SSI {
             utils.throwError(e, null, opts.filePath);
         }
 
-        return {
-            tpl,
-            tokens
-        };
+        return tpl;
     }
     compile(source, opts = {}) {
-        let pre = this.precompile(source, opts);
-        return (locals => pre.tpl(this, Object.assign({}, opts.locals, locals), utils, noop));
+        const tpl = this.precompile(source, opts);
+        return (locals => tpl(this, Object.assign({}, opts.locals, this.options.locals), utils, noop));
     }
     compileFile(filePath, opts = {}) {
         const {
