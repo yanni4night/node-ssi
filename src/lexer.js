@@ -39,7 +39,6 @@ const RULES = [{
 }, {
     type: TYPES.VAR,
     regex: [
-        /^[a-zA-Z_$]\w*((\.\$?\w*)+)?/,
         /^[a-zA-Z_$]\w*/
     ]
 }, {
