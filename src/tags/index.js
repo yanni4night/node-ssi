@@ -12,5 +12,6 @@
 import * as include from './include';
 import * as set from './set';
 import * as echo from './echo';
+import * as block from './block';
 
-export {include, set, echo};
+export {include, set, echo, block};

@@ -156,6 +156,7 @@ export const parse = (ssi, source, opts, tags) => {
             compile: tag.compile,
             params: parser.paramMap,
             args: args,
+            content: [],
             ends: tag.ends,
             name: tagName
         };
@@ -172,7 +173,7 @@ export const parse = (ssi, source, opts, tags) => {
             token = parseTag(chunk.replace(tagStrip, ''), line);
             if (token) {
                 if (token.block && !stack.length) {
-                    blocks[token.args.join('')] = token;
+                    blocks[token.params.name] = token;
                 }
             }
             // Is a content string?
@@ -221,7 +222,7 @@ export const compile = function (template) {
             return;
         }
 
-        o = token.compile(token.params);
+        o = token.compile(token.params, token.content);
         out += o || '';
     });
 
