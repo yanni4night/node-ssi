@@ -31,7 +31,7 @@ usage
     var SSI = require('node-ssi');
     var ssi = new SSI({
             baseDir: './html/',
-            encoding: 'utf-8'
+            encoding: 'utf-8',
             payload: {
                 v: 5
             }
